@@ -19,6 +19,9 @@ link_directories(${OpenCV_LIB_DIRS})
 
 add_executable(libtorch_httpservice main.cpp
         Inference.cpp
-        Inference.h)
+        Inference.h
+        server/handler.cpp
+        server/handler.h
+)
 target_link_libraries(libtorch_httpservice "${TORCH_LIBRARIES}" "${OpenCV_LIBS}")
 target_link_libraries(libtorch_httpservice hv)

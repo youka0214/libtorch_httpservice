@@ -4,6 +4,7 @@
 Inference::Inference(const std::string &model_path): device(torch::kCPU) {
 	// 选择设备
 	device = torch::cuda::is_available() ? torch::kCUDA : torch::kCPU;
+	// device = torch::kCPU;
 
 	try {
 		// 加载模型并放至设备上

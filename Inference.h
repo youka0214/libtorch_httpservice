@@ -7,7 +7,7 @@
 class Inference {
 	std::string model_path;
 	torch::jit::script::Module module;
-	torch::Device device;
+	torch::DeviceType device;
 	torch::Tensor input_tensor;
 public:
 	explicit Inference(const std::string& model_path);

@@ -1,47 +1,20 @@
 #include <hv/HttpServer.h>
-
+#include "server/handler.h"
 #include "Inference.h"
-#include "opencv2/opencv.hpp"
+
+hv::HttpServer  g_http_server;
+hv::HttpService g_http_service;
 
 int main() {
-    HttpService router;
+    int port = 34568;
 
-    router.POST("/recognition", [](const HttpContextPtr& ctx) {
-        hv::Json resp;
+    g_http_service.POST("/getInferResult",Handler::getInferResult);
 
-        if (ctx->is(MULTIPART_FORM_DATA)) {
-            auto form = ctx->form();
-            std::string image_buffer;
-            if (form.find("image") != form.end()) {
-                image_buffer = form["image"].content;
-            }
-            else {
-                ctx->setStatus(HTTP_STATUS_BAD_REQUEST);
-                resp["message"] = "No image found in the request";
-                return ctx->send(resp.dump(), APPLICATION_JSON);
-            }
+    g_http_server.port = port;
+    g_http_server.registerHttpService(&g_http_service);
 
-            std::string model_path = "/data/model/convnext_large.pt";
-            Inference inference(model_path);
-
-            inference.setInput(image_buffer);
-            int result = inference.infer_int();
-
-            ctx->setStatus(HTTP_STATUS_OK);
-            resp["message"] = "Image received and processed";
-            resp["result"] = result;
-            return ctx->send(resp.dump(), APPLICATION_JSON);
-        }
-        ctx->setStatus(HTTP_STATUS_UNSUPPORTED_MEDIA_TYPE);
-        resp["message"] = "Unsupported media";
-        return ctx->send(resp.dump(), APPLICATION_JSON);
-    });
-
-    hv::HttpServer http_server;
-    http_server.setPort(34568);
-    http_server.registerHttpService(&router);
-    std::cout << "Server running on port 34568" << std::endl;
-    http_server.run();
+    std::cout << "Server running on port " << port << std::endl;
+    g_http_server.run();
 
     return 0;
 }
